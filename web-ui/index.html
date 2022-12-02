@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>命令调试工具</title>
+    <link rel="stylesheet" type="text/css" href='style.css' as='style'>
+    <!--
+    <link rel="stylesheet" type="text/css" href='bootstrap.min.css' as='style'>
+    <script type='text/javascript' src='bootstrap.min.js'></script>
+    -->
+    <script type='text/javascript' src='/eel.js'></script>
+    <script type='text/javascript' src='jquery-3.5.1.min.js'></script>
+    <script type='text/javascript' src='moment.min.js'></script>
+    <script type='text/javascript'>
+
+        $(document).ready(() => {
+            if (typeof (eel) != 'undefined') {
+                eel.list_ports()(ports => {
+                    console.log('ports', ports)
+                    for (var p in ports) {
+                        let opt = `<option value='${ports[p]}'>${p}: ${ports[p]}</option>`
+                        console.log(p, opt)
+                        $('#ports').append(opt)
+
+                    }
+                })
+            }
+
+            $("#input-box").keydown(async e => {
+                let w = $("#input-box")
+                if (e.key == 'Enter') {
+                    if (typeof (eel) != 'undefined') {
+                        eel.send(w.val())
+                    }
+                    w.val('')
+                }
+            });
+
+            $("#btn").click(() => {
+                if (typeof (eel) != 'undefined') {
+                    if ($("#btn").val() == '连接') {
+                        eel.connect($("#ports").val())
+                        $("#btn").val('断开')
+                    } else {
+                        eel.disconnect()
+                        $("#btn").val('连接')
+                    }
+                }
+            });
+
+            $("#time-btn").click(() => {
+                let str = moment().format("YYYYMMDDHHmmss")
+                eel.send("set time " + str)
+            });
+        })
+
+        eel.expose(receive)
+
+        function append(str) {
+            let w = $("#display")
+            w.val(w.val() + str)
+            w.scrollTop(w[0].scrollHeight);
+        }
+
+        function receive(e) {
+            console.log(e)
+            append(e)
+        }
+
+        /*
+        setInterval(() => {
+            let disp = $("#display")
+            eel.send("get time")
+            append(moment().format("YYYY-MM-DD HH:mm:ss \r\n"))
+        }, 1 * 1000)
+        */
+
+    </script>
+</head>
+
+<body style="height: 556px;">
+    <div class='flex-column h-100'>
+        <view class='flex-row mb-025'>
+            <select id="ports" class="flex-1 mr-025"></select>
+            <input id='btn' type='button' value='连接' />
+            <input id='time-btn' type='button' class="mr-025 ml-025" value='同步时间' />
+        </view>
+        <textarea id='display' readonly class="flex-1 mb-025" style="resize: none; white-space: pre-wrap"></textarea>
+        <input id='input-box' class="mb-025" placeholder='Type command here' value='' />
+        <hr>
+    </div>
+</body>
+
+</html>
