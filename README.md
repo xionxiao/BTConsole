@@ -1,4 +1,4 @@
-# BlueToothConsole
+# Bluetooth Console
 > A Cross-platform Bluetooth/Serial Console CommandLine Tool.
 
 ## Dependency
